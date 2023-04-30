@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskmaster
+  labels:
+    app: taskmaster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskmaster
+  template:
+    metadata:
+      labels:
+        app: taskmaster
+    spec:
+      hostAliases:
+        - ip: "10.96.50.50"
+          hostnames:
+            - "mongo"
+      containers:
+        - name: taskmaster
+          image: adpatidar/taskmaster:latest
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskmaster-svc
+spec:
+  selector:
+    app: taskmaster
+  ports:
+    - port: 80
+      targetPort: 5000
+      nodePort: 30007
+  type: NodePort
